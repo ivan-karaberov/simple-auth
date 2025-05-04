@@ -10,7 +10,7 @@ import (
 type Session struct {
 	SessionID    string    `json:"session_id"    gorm:"primaryKey; type:varchar(36)"`
 	UserID       string    `json:"user_id"       gorm:"type:varchar(36); not null"`
-	IP           string    `json:"ip"            gorm:"type:varchar(39)"`
+	IP           string    `json:"ip"            gorm:"type:varchar(45)"`
 	UserAgent    string    `json:"user_agent"    gorm:"type:varchar(512)"`
 	RefreshToken string    `json:"refresh_token" gorm:"type:text"`
 	CreatedAt    time.Time `json:"created_at"    gorm:"autoCreateTime"`
@@ -20,7 +20,9 @@ type Session struct {
 
 // Adds a new session to the sessions table.
 func CreateSession(db *gorm.DB, session *Session) (string, error) {
-	session.SessionID = uuid.New().String()
+	if session.SessionID == "" {
+		session.SessionID = uuid.New().String()
+	}
 
 	if err := db.Create(session).Error; err != nil {
 		return "", err
