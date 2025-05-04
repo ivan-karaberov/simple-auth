@@ -33,6 +33,7 @@ func TestCreateSession(t *testing.T) {
 
 	session := &Session{
 		UserID:       uuid.New().String(),
+		IP:           "192.168.1.1",
 		UserAgent:    "test-agent",
 		RefreshToken: "test-refresh-token",
 		ExpireAt:     time.Now().Add(24 * time.Hour),
@@ -46,6 +47,8 @@ func TestCreateSession(t *testing.T) {
 	err = db.First(&createdSession, "session_id = ?", sessionID).Error
 	assert.NoError(t, err)
 	assert.Equal(t, session.UserID, createdSession.UserID)
+	assert.Equal(t, session.IP, createdSession.IP)
+	assert.Equal(t, session.UserAgent, createdSession.UserAgent)
 }
 
 func TestGetSession(t *testing.T) {
@@ -55,6 +58,7 @@ func TestGetSession(t *testing.T) {
 	session := &Session{
 		SessionID:    uuid.New().String(),
 		UserID:       uuid.New().String(),
+		IP:           "192.168.1.1",
 		UserAgent:    "test-agent",
 		RefreshToken: "test-refresh-token",
 		ExpireAt:     time.Now().Add(24 * time.Hour),
@@ -65,6 +69,7 @@ func TestGetSession(t *testing.T) {
 	retrievedSession, err := GetSession(db, session.SessionID)
 	assert.NoError(t, err)
 	assert.Equal(t, session.SessionID, retrievedSession.SessionID)
+	assert.Equal(t, session.IP, retrievedSession.IP)
 }
 
 func TestUpdateClient(t *testing.T) {
@@ -74,6 +79,7 @@ func TestUpdateClient(t *testing.T) {
 	session := &Session{
 		SessionID:    uuid.New().String(),
 		UserID:       uuid.New().String(),
+		IP:           "192.168.1.1",
 		UserAgent:    "test-agent",
 		RefreshToken: "test-refresh-token",
 		ExpireAt:     time.Now().Add(24 * time.Hour),
@@ -97,6 +103,7 @@ func TestDeleteSession(t *testing.T) {
 	session := &Session{
 		SessionID:    uuid.New().String(),
 		UserID:       uuid.New().String(),
+		IP:           "192.168.1.1",
 		UserAgent:    "test-agent",
 		RefreshToken: "test-refresh-token",
 		ExpireAt:     time.Now().Add(24 * time.Hour),
@@ -110,4 +117,5 @@ func TestDeleteSession(t *testing.T) {
 	var deletedSession Session
 	err = db.First(&deletedSession, "session_id = ?", session.SessionID).Error
 	assert.Error(t, err)
+	assert.Equal(t, gorm.ErrRecordNotFound, err)
 }

@@ -10,6 +10,7 @@ import (
 type Session struct {
 	SessionID    string    `json:"session_id"    gorm:"primaryKey; type:varchar(36)"`
 	UserID       string    `json:"user_id"       gorm:"type:varchar(36); not null"`
+	IP           string    `json:"ip"            gorm:"type:varchar(39)"`
 	UserAgent    string    `json:"user_agent"    gorm:"type:varchar(512)"`
 	RefreshToken string    `json:"refresh_token" gorm:"type:text"`
 	CreatedAt    time.Time `json:"created_at"    gorm:"autoCreateTime"`

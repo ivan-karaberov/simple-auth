@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS Session (
     session_id VARCHAR(36) PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
+    ip VARCHAR(15),
     user_agent VARCHAR(512),
-    refresh_token TEXT,
+    refresh_token TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     expire_at TIMESTAMP NOT NULL,
