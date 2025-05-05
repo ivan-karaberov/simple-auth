@@ -11,6 +11,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type CustomClaims struct {
+	Subject string `json:"sub"`
+	SID     string `json:"sid"`
+	jwt.RegisteredClaims
+}
+
 func GenerateRefreshToken() (string, error) {
 	tokenBytes := make([]byte, 32)
 	_, err := rand.Read(tokenBytes)
@@ -23,11 +29,15 @@ func GenerateRefreshToken() (string, error) {
 }
 
 func GenerateAccessToken(userID string, sessionID string, accessTokenExpireMinutes int16, privateKey *rsa.PrivateKey) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
-		"sub": userID,
-		"sid": sessionID,
-		"exp": time.Now().Add(time.Duration(accessTokenExpireMinutes) * time.Minute).Unix(),
-	})
+	claims := CustomClaims{
+		Subject: userID,
+		SID:     sessionID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(accessTokenExpireMinutes) * time.Minute)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 
 	tokenString, err := token.SignedString(privateKey)
 	if err != nil {
@@ -37,8 +47,8 @@ func GenerateAccessToken(userID string, sessionID string, accessTokenExpireMinut
 	return tokenString, nil
 }
 
-func validateToken(tokenString string, publicKey *rsa.PublicKey) (jwt.Claims, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func ValidateToken(tokenString string, publicKey *rsa.PublicKey) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -49,7 +59,7 @@ func validateToken(tokenString string, publicKey *rsa.PublicKey) (jwt.Claims, er
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(jwt.Claims); ok && token.Valid {
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
 	}
 
