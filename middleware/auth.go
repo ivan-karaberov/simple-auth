@@ -32,12 +32,14 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 
 		if err != nil {
 			errors.APIError(c, errors.ErrIncorrectToken)
+			c.Abort()
 			return
 		}
 
 		_, err = services.CheckSessionExists(db, payload.SID)
 		if err != nil {
 			errors.APIError(c, errors.ErrIncorrectToken)
+			c.Abort()
 			return
 		}
 

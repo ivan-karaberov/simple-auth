@@ -29,7 +29,7 @@ func (u *UserController) SetupRoutes(router *gin.Engine) {
 func (u *UserController) UserDetailHandler(c *gin.Context) {
 	userID := c.Value("userID")
 	if userID != nil {
-		c.JSON(http.StatusOK, userID)
+		c.JSON(http.StatusOK, gin.H{"user_id": userID})
 		return
 	}
 	logrus.Error("Failed get user detail, userID is empty")
