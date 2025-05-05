@@ -57,3 +57,11 @@ func SignIn(db *gorm.DB, cfg *config.Config, userDetail UserInfo) (*TokenPair, e
 func SignOut(db *gorm.DB, sessionID string) error {
 	return models.DeleteSession(db, sessionID)
 }
+
+func CheckSessionExists(db *gorm.DB, sessionID string) (bool, error) {
+	_, err := models.GetSession(db, sessionID)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
