@@ -72,7 +72,7 @@ func TestGetSession(t *testing.T) {
 	assert.Equal(t, session.IP, retrievedSession.IP)
 }
 
-func TestUpdateClient(t *testing.T) {
+func TestUpdateSession(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
 
@@ -88,7 +88,7 @@ func TestUpdateClient(t *testing.T) {
 	db.Create(session)
 
 	session.UserAgent = "updated-agent"
-	err = UpdateClient(db, session)
+	err = UpdateSession(db, session)
 	assert.NoError(t, err)
 
 	retrievedSession, err := GetSession(db, session.SessionID)

@@ -38,7 +38,7 @@ func GetSession(db *gorm.DB, sessionID string) (session *Session, err error) {
 }
 
 // Updates the session's data in the sessions table.
-func UpdateClient(db *gorm.DB, session *Session) error {
+func UpdateSession(db *gorm.DB, session *Session) error {
 	return db.Model(&Session{}).Where("session_id = ?", session.SessionID).Updates(session).Error
 }
 
