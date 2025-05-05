@@ -48,6 +48,10 @@ func GenerateAccessToken(userID string, sessionID string, accessTokenExpireMinut
 }
 
 func ValidateToken(tokenString string, publicKey *rsa.PublicKey) (*CustomClaims, error) {
+	return GetTokenPayload(tokenString, publicKey, false)
+}
+
+func GetTokenPayload(tokenString string, publicKey *rsa.PublicKey, skipValidation bool) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -59,7 +63,7 @@ func ValidateToken(tokenString string, publicKey *rsa.PublicKey) (*CustomClaims,
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*CustomClaims); ok && (skipValidation || token.Valid) {
 		return claims, nil
 	}
 
@@ -72,4 +76,9 @@ func HashRefreshToken(token string) (string, error) {
 		return "", err
 	}
 	return string(hashedToken), nil
+}
+
+func CompareRefreshToken(hashedToken string, token string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedToken), []byte(token))
+	return err == nil
 }
