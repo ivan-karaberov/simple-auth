@@ -1,4 +1,16 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simpleAuth
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - ./.env:/app/.env
+  
   db:
     container_name: DbAuth
     image: postgres:14
