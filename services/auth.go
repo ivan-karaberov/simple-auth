@@ -71,7 +71,6 @@ func RefreshToken(db *gorm.DB, cfg *config.Config, tokens *TokenPair, userIP str
 	if session == nil {
 		return nil, fmt.Errorf("session not found")
 	}
-
 	if !CompareRefreshToken(session.RefreshToken, tokens.RefreshToken) {
 		return nil, fmt.Errorf("invalid refresh token")
 	}
@@ -108,8 +107,17 @@ func RefreshToken(db *gorm.DB, cfg *config.Config, tokens *TokenPair, userIP str
 	}
 
 	session.ExpireAt = time.Now().Add(time.Duration(cfg.RefreshTokenExpireMinutes) * time.Minute)
-	session.RefreshToken = refreshToken
-	models.UpdateSession(db, session)
+	session.RefreshToken, err = HashRefreshToken(refreshToken)
+	if err != nil {
+		logrus.WithError(err).Error("Failed hash refresh token")
+		return nil, fmt.Errorf("failed hash refresh token")
+	}
+
+	err = models.UpdateSession(db, session)
+	if err != nil {
+		logrus.WithError(err).Error("Failed update session")
+		return nil, fmt.Errorf("failed update session")
+	}
 
 	return &TokenPair{
 		AccessToken:  accessToken,
