@@ -21,6 +21,8 @@ func main() {
 	ctx := context.Background()
 	cfg := config.LoadConfig(ctx, ".env", "certs/jwt-private.pem", "certs/jwt-public.pem")
 
+	gin.SetMode(gin.ReleaseMode)
+
 	db := models.NewDBConnection(cfg)
 
 	router := gin.Default()
@@ -29,5 +31,5 @@ func main() {
 
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.Run(":3001")
+	router.Run(":3000")
 }
