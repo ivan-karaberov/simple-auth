@@ -52,18 +52,23 @@ func ValidateToken(tokenString string, publicKey *rsa.PublicKey) (*CustomClaims,
 }
 
 func GetTokenPayload(tokenString string, publicKey *rsa.PublicKey, skipValidation bool) (*CustomClaims, error) {
+	var options []jwt.ParserOption
+
+	if skipValidation {
+		options = append(options, jwt.WithoutClaimsValidation())
+	}
+
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return publicKey, nil
-	})
+	}, options...)
 
 	if err != nil {
 		return nil, err
 	}
-
-	if claims, ok := token.Claims.(*CustomClaims); ok && (skipValidation || token.Valid) {
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
 	}
 
