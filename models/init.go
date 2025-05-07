@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"simpleAuth/config"
 	"simpleAuth/logger"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -17,11 +18,22 @@ func NewDBConnection(cfg *config.Config) *gorm.DB {
 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort,
 	)
 
-	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.CustomGormLogger(),
-	})
+	var DB *gorm.DB
+	var err error
+
+	for i := range 3 {
+		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.CustomGormLogger(),
+		})
+		if err != nil && i < 2 {
+			logrus.WithError(err).Errorf("Failed to connect to database, attempt %d", i+1)
+			time.Sleep(10 * time.Second)
+			continue
+		}
+	}
+
 	if err != nil {
-		logrus.WithError(err).Fatal()
+		logrus.WithError(err).Fatal("Could not connect to the database after multiple attempts")
 	}
 
 	logrus.Info("Successfully connected to the database")
