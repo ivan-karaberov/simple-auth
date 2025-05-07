@@ -6,15 +6,14 @@ CREATE TABLE IF NOT EXISTS Sessions (
     user_agent VARCHAR(512),
     refresh_token TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT now(),
     expire_at TIMESTAMP NOT NULL
 );
-
-ALTER TABLE sessions ADD COLUMN "updated_at" timestamp NULL DEFAULT now();
 
 CREATE OR REPLACE FUNCTION update_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated = now();
+    NEW.updated_at = now();
     RETURN NEW;
 END;
 $$ language 'plpgsql';
