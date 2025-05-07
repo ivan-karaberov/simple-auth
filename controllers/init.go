@@ -11,6 +11,7 @@ type Controller interface {
 	SetupRoutes(router *gin.Engine)
 }
 
+// Initializes the routes for the application.
 func SetupRoutes(db *gorm.DB, cfg *config.Config, router *gin.Engine) {
 	var controllersList []Controller
 	controllersList = append(controllersList, NewAuthController(db, cfg))

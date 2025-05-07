@@ -14,19 +14,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Holds the configuration settings for the application.
 type Config struct {
-	DBHost                    string `env:"DB_HOST"`
-	DBPort                    string `env:"DB_PORT"`
-	DBUser                    string `env:"DB_USER"`
-	DBName                    string `env:"DB_NAME"`
-	DBPassword                string `env:"DB_PASSWORD"`
-	WebhookURL                string `env:"WEBHOOK_URL"`
-	AccessTokenExpireMinutes  int16  `env:"ACCESS_TOKEN_EXPIRE_MINUTES"`
-	RefreshTokenExpireMinutes int16  `env:"REFRESH_TOKEN_EXPIRE_MINUTES"`
-	RSAPrivateKey             *rsa.PrivateKey
-	RSAPublicKey              *rsa.PublicKey
+	DBHost                    string          `env:"DB_HOST"`                      // Database host
+	DBPort                    string          `env:"DB_PORT"`                      // Database port
+	DBUser                    string          `env:"DB_USER"`                      // Database user
+	DBName                    string          `env:"DB_NAME"`                      // Database name
+	DBPassword                string          `env:"DB_PASSWORD"`                  // Database password
+	WebhookURL                string          `env:"WEBHOOK_URL"`                  // Webhook URL for notifications
+	AccessTokenExpireMinutes  int16           `env:"ACCESS_TOKEN_EXPIRE_MINUTES"`  // Access token expiration time in minutes
+	RefreshTokenExpireMinutes int16           `env:"REFRESH_TOKEN_EXPIRE_MINUTES"` // Refresh token expiration time in minutes
+	RSAPrivateKey             *rsa.PrivateKey // RSA private key for signing tokens
+	RSAPublicKey              *rsa.PublicKey  // RSA public key for verifying tokens
 }
 
+// Loads the configuration from environment variables and RSA key files.
 func LoadConfig(ctx context.Context, filename string, privateRsaKeyPath string, publicRsaKeyPath string) *Config {
 	if err := godotenv.Load(filename); err != nil {
 		logrus.WithError(err).Fatal("Error loading .env file")
@@ -60,6 +62,7 @@ func LoadConfig(ctx context.Context, filename string, privateRsaKeyPath string, 
 	return &cfg
 }
 
+// Reads and parses the RSA private key from a file.
 func loadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	privKeyData, err := os.ReadFile(privateKeyPath)
 	if err != nil {
@@ -84,6 +87,7 @@ func loadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	return rsaPrivKey, nil
 }
 
+// Reads and parses the RSA public key from a file.
 func loadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
 	pubKeyData, err := os.ReadFile(publicKeyPath)
 	if err != nil {

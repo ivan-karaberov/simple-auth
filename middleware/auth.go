@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Middleware function for Gin that handles authentication.
 func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")

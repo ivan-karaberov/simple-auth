@@ -21,6 +21,7 @@ type TokenPair struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
+// Authenticates a user and generates a pair of tokens (access and refresh tokens).
 func SignIn(db *gorm.DB, cfg *config.Config, userDetail UserInfo) (*TokenPair, error) {
 	refreshToken, err := GenerateRefreshToken()
 	if err != nil {
@@ -56,6 +57,7 @@ func SignIn(db *gorm.DB, cfg *config.Config, userDetail UserInfo) (*TokenPair, e
 	}, nil
 }
 
+// Generates a new pair of tokens
 func RefreshToken(db *gorm.DB, cfg *config.Config, tokens *TokenPair, userIP string, userAgent string) (*TokenPair, error) {
 	payload, err := GetTokenPayload(tokens.AccessToken, cfg.RSAPublicKey, true)
 	if err != nil {
@@ -125,10 +127,12 @@ func RefreshToken(db *gorm.DB, cfg *config.Config, tokens *TokenPair, userIP str
 	}, nil
 }
 
+// Removes a user's session from the database using the provided session ID.
 func SignOut(db *gorm.DB, sessionID string) error {
 	return models.DeleteSession(db, sessionID)
 }
 
+// Checks if a session exists in the database for the given session ID.
 func CheckSessionExists(db *gorm.DB, sessionID string) (bool, error) {
 	_, err := models.GetSession(db, sessionID)
 	if err != nil {

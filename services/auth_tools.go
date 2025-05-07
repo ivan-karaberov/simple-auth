@@ -11,12 +11,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// JWT Payload
 type CustomClaims struct {
-	Subject string `json:"sub"`
-	SID     string `json:"sid"`
+	Subject string `json:"sub"` // User ID
+	SID     string `json:"sid"` // Session ID
 	jwt.RegisteredClaims
 }
 
+// Creates a new refresh token using random bytes and encodes it in base64.
 func GenerateRefreshToken() (string, error) {
 	tokenBytes := make([]byte, 32)
 	_, err := rand.Read(tokenBytes)
@@ -28,6 +30,7 @@ func GenerateRefreshToken() (string, error) {
 	return refreshToken, nil
 }
 
+// Creates a new access token for a user with a specified expiration time.
 func GenerateAccessToken(userID string, sessionID string, accessTokenExpireMinutes int16, privateKey *rsa.PrivateKey) (string, error) {
 	claims := CustomClaims{
 		Subject: userID,
@@ -47,10 +50,12 @@ func GenerateAccessToken(userID string, sessionID string, accessTokenExpireMinut
 	return tokenString, nil
 }
 
+// Checks the validity of the provided token string using the public key.
 func ValidateToken(tokenString string, publicKey *rsa.PublicKey) (*CustomClaims, error) {
 	return GetTokenPayload(tokenString, publicKey, false)
 }
 
+// Parses the token string and retrieves the claims, optionally skipping validation.
 func GetTokenPayload(tokenString string, publicKey *rsa.PublicKey, skipValidation bool) (*CustomClaims, error) {
 	var options []jwt.ParserOption
 

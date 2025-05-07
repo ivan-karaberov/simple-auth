@@ -15,6 +15,7 @@ type NotificationPayload struct {
 	UserIP    string `json:"user_ip"`
 }
 
+// Sends a notification payload to a specified webhook URL.
 func Notify(cfg *config.Config, payload NotificationPayload) {
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {

@@ -18,6 +18,14 @@ type Session struct {
 	ExpireAt     time.Time `json:"expire_at"     gorm:"not null"`
 }
 
+type UserResponse struct {
+	UserID string `json:"user_id"`
+}
+
+type SignOutResponse struct {
+	Message string `json:"message"`
+}
+
 // Adds a new session to the sessions table.
 func CreateSession(db *gorm.DB, session *Session) (string, error) {
 	if session.SessionID == "" {
