@@ -20,8 +20,8 @@ func APIError(c *gin.Context, err *ErrorResponse) {
 
 var (
 	ErrBadRequestBody      = NewErr(400, "Bad Request body")
-	ErrHeaderIsMissing     = NewErr(403, "Authorization header is missing")
-	ErrInvalidHeaderFormat = NewErr(403, "Invalid authorization header format")
-	ErrIncorrectToken      = NewErr(403, "Incorrect Token")
+	ErrHeaderIsMissing     = NewErr(401, "Authorization header is missing")
+	ErrInvalidHeaderFormat = NewErr(401, "Invalid authorization header format")
+	ErrIncorrectToken      = NewErr(401, "Incorrect Token")
 	ErrInternalServer      = NewErr(500, "An unexpected error occurred while processing the request")
 )

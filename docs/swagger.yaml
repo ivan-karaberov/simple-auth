@@ -1,0 +1,146 @@
+definitions:
+  errors.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.SignOutResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      user_id:
+        type: string
+    type: object
+  services.TokenPair:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refreshes the access and refresh tokens using the provided token
+        pair
+      parameters:
+      - description: Token pair containing refresh token
+        in: body
+        name: tokenPair
+        required: true
+        schema:
+          $ref: '#/definitions/services.TokenPair'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New token pair
+          schema:
+            $ref: '#/definitions/services.TokenPair'
+        "400":
+          description: Bad request body
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Refreshes the access and refresh tokens
+      tags:
+      - Auth
+  /auth/signin/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Signs in a user and returns a token pair
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/services.TokenPair'
+        "400":
+          description: Bad Request body
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: User Sign In
+      tags:
+      - Auth
+  /auth/signout:
+    post:
+      description: Signs out the user by invalidating the session ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SignOutResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Signs out the user
+      tags:
+      - Auth
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Gets current user info by token authorization
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user info
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

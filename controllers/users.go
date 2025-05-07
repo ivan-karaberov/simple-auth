@@ -5,6 +5,7 @@ import (
 	"simpleAuth/config"
 	"simpleAuth/errors"
 	"simpleAuth/middleware"
+	"simpleAuth/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -26,10 +27,20 @@ func (u *UserController) SetupRoutes(router *gin.Engine) {
 	user.GET("/me", middleware.AuthMiddleware(u.DB, u.Cfg), u.UserDetailHandler)
 }
 
+// @Summary Get current user info
+// @Description Gets current user info by token authorization
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.UserResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /users/me [get]
 func (u *UserController) UserDetailHandler(c *gin.Context) {
 	userID := c.Value("userID")
 	if userID != nil {
-		c.JSON(http.StatusOK, gin.H{"user_id": userID})
+		c.JSON(http.StatusOK, models.UserResponse{UserID: userID.(string)})
 		return
 	}
 	logrus.Error("Failed get user detail, userID is empty")

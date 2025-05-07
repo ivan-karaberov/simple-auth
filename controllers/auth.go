@@ -5,6 +5,7 @@ import (
 	"simpleAuth/config"
 	"simpleAuth/errors"
 	"simpleAuth/middleware"
+	"simpleAuth/models"
 	"simpleAuth/services"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,16 @@ func (a *AuthController) SetupRoutes(router *gin.Engine) {
 	auth.POST("/signout", middleware.AuthMiddleware(a.DB, a.Cfg), a.SignOutHandler)
 }
 
+// @Summary User Sign In
+// @Description Signs in a user and returns a token pair
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} services.TokenPair
+// @Failure 400 {object} errors.ErrorResponse "Bad Request body"
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /auth/signin/{id} [post]
 func (ac *AuthController) SignInHandler(c *gin.Context) {
 	userID := c.Param("id")
 	if userID == "" {
@@ -50,6 +61,16 @@ func (ac *AuthController) SignInHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, tokenPair)
 }
 
+// @Summary Refreshes the access and refresh tokens
+// @Description Refreshes the access and refresh tokens using the provided token pair
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param tokenPair body services.TokenPair true "Token pair containing refresh token"
+// @Success 200 {object} services.TokenPair "New token pair"
+// @Failure 400 {object} errors.ErrorResponse "Bad request body"
+// @Failure 500 {object} errors.ErrorResponse "Internal server error"
+// @Router /auth/refresh [post]
 func (ac *AuthController) RefreshTokenHandler(c *gin.Context) {
 	var tokenPair services.TokenPair
 	if err := c.ShouldBindJSON(&tokenPair); err != nil {
@@ -70,6 +91,15 @@ func (ac *AuthController) RefreshTokenHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, newTokenPair)
 }
 
+// @Summary Signs out the user
+// @Description Signs out the user by invalidating the session ID
+// @Tags Auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.SignOutResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse "Internal server error"
+// @Router /auth/signout [post]
 func (ac *AuthController) SignOutHandler(c *gin.Context) {
 	sessionID := c.Value("sessionID")
 	if sessionID == nil {
@@ -85,5 +115,5 @@ func (ac *AuthController) SignOutHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Sign out success"})
+	c.JSON(http.StatusOK, models.SignOutResponse{Message: "Sign out success"})
 }
